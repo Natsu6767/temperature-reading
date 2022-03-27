@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     DATA_ROOT = args.data_root
     print(DATA_ROOT)
-    
+
     dset = TemperatureDataset(DATA_ROOT, overfit=bool(args.overfit))
     test_dset = TemperatureDataset(DATA_ROOT, train=False)
 
