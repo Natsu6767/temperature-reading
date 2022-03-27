@@ -73,6 +73,9 @@ def test(model, test_loader):
 if __name__ == "__main__":
     args = parse_args()
 
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+
     DATA_ROOT = args.data_root
     print(DATA_ROOT)
 
