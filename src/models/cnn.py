@@ -29,14 +29,10 @@ class MyModel(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(2)
         )
-
         self.fc = nn.Linear(512 * 32 * 32, 101)
 
     def forward(self, x):
         x = self.encoder(x)
-        #import pdb; pdb.set_trace()
         x = x.view(x.shape[0], -1)
-
         x = self.fc(x)
-
         return x

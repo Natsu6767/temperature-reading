@@ -21,21 +21,19 @@ def visualize_batch(imgs):
     grid_imgs = utils.make_grid(imgs, nrow=8)
     plt.imshow(grid_imgs.permute(1, 2, 0))
     plt.savefig("batch.png")
+
 class TemperatureDataset(Dataset):
     def __init__(self, root_dir, transform=None, train=True, overfit=False):
-        print("In Dataset")
+        #import pdb; pdb.set_trace()
         self.root_dir = root_dir
         train_test = "train" if train else "test"
         image_path = os.path.join(root_dir, train_test, "images")
         gt_path = os.path.join(root_dir, train_test, "targets")
-
-        #import pdb; pdb.set_trace()
         if transform is not None:
             self.transforms = transform
         else:
             self.transforms = transforms.Compose([
                 transforms.ToTensor(),
-                #transforms.RandomCrop((500, 84)),
                 transforms.Resize((256, 256))])
 
         self.images = []
@@ -43,7 +41,7 @@ class TemperatureDataset(Dataset):
 
         i = 0
         for file in glob.glob(os.path.join(image_path,"*.png")):
-            if overfit and i > 1000:
+            if overfit and i > 100:
                 break
             open_image = Image.open(file)
             open_image = np.array(open_image)

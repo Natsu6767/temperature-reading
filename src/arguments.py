@@ -11,7 +11,8 @@ def parse_args():
     parser.add_argument('--batch_size', default=32, type=int)
 
     parser.add_argument('--overfit', default=0, type=int)
-    parser.add_argument('--data_root', default="../thermometers", type=str)
+    parser.add_argument('--data_root', default="thermometers", type=str)
+    parser.add_argument('--epochs', default=10, type=int)
 
     args = parser.parse_args()
 
