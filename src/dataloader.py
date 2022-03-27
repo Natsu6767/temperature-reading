@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import glob
 import json
+import matplotlib.pyplot as plt
 
 from torch.utils.data import Dataset
 from torchvision import transforms, utils
@@ -16,6 +17,10 @@ def collate_fn(batch):
 
     return [imgs, target]
 
+def visualize_batch(imgs):
+    grid_imgs = utils.make_grid(imgs, nrow=8)
+    plt.imshow(grid_imgs.permute(1, 2, 0))
+    plt.savefig("batch.png")
 class TemperatureDataset(Dataset):
     def __init__(self, root_dir, transform=None, train=True, overfit=False):
         print("In Dataset")
@@ -28,14 +33,17 @@ class TemperatureDataset(Dataset):
         if transform is not None:
             self.transforms = transform
         else:
-            self.transforms = transforms.ToTensor()
+            self.transforms = transforms.Compose([
+                transforms.ToTensor(),
+                #transforms.RandomCrop((500, 84)),
+                transforms.Resize((256, 256))])
 
         self.images = []
         self.targets = []
 
         i = 0
         for file in glob.glob(os.path.join(image_path,"*.png")):
-            if overfit and i > 5:
+            if overfit and i > 1000:
                 break
             open_image = Image.open(file)
             open_image = np.array(open_image)
