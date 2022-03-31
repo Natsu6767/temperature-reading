@@ -2,9 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class MyModel(nn.Module):
+class Cnn(nn.Module):
     def __init__(self, args=None):
-        super(MyModel, self).__init__()
+        super(Cnn, self).__init__()
+
+        self.classification = args.classification
 
         self.encoder = nn.Sequential(
             nn.Conv2d(3, 32, 5, 1, 2),
@@ -29,10 +31,17 @@ class MyModel(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(2)
         )
-        self.fc = nn.Linear(512 * 32 * 32, 101)
+
+        if self.classification:
+            self.fc = nn.Linear(512 * 32 * 32, 101)
+        else:
+            self.fc = nn.Linear(512 * 32 * 32, 1)
 
     def forward(self, x):
         x = self.encoder(x)
         x = x.view(x.shape[0], -1)
         x = self.fc(x)
-        return x
+        if self.classification:
+            return x
+        else:
+            return x.squeeze()

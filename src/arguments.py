@@ -13,11 +13,9 @@ def parse_args():
     parser.add_argument('--overfit', default=0, type=int)
     parser.add_argument('--data_root', default="thermometers", type=str)
     parser.add_argument('--epochs', default=10, type=int)
+    parser.add_argument('--classification', default=1, type=int)
+    parser.add_argument('--model_type', default="small", type=str)
 
     args = parser.parse_args()
-
-    assert args.seed is not None, 'must provide seed for experiment'
-    assert args.exp_name is not None, 'must provide an experiment suffix for experiment'
-    assert args.log_dir is not None, 'must provide a log directory for experiment'
 
     return args

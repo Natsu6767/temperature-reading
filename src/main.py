@@ -7,11 +7,9 @@ import os
 from dataloader import TemperatureDataset, collate_fn, visualize_batch
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-from models.cnn_small import MyModelSmall as MyModel
 from logger import Logger
 from sklearn.metrics import accuracy_score
 from arguments import parse_args
-from models.resnet import ResNet18
 
 def evaluate(model, loss, val_loader, epoch, L):
     for img, target in val_loader:
@@ -20,8 +18,12 @@ def evaluate(model, loss, val_loader, epoch, L):
 
         prediction = model(img)
 
-        acc = accuracy_score(np.argmax(prediction.cpu().numpy(), axis=1), target.cpu().numpy())
-        val_loss = loss(prediction, target)
+        if isinstance(loss, torch.nn.CrossEntropyLoss):
+            val_loss = loss(prediction, target)
+            acc = accuracy_score(np.argmax(prediction.cpu().numpy(), axis=1), target.cpu().numpy())
+        else:
+            val_loss = loss(prediction, target.float())
+            acc = accuracy_score(np.round(prediction.cpu().numpy()), target.cpu().numpy())
 
         L.log("eval/loss", val_loss, epoch)
         L.log("eval/acc", acc, epoch)
@@ -38,7 +40,11 @@ def train(model, loss, train_loader, val_loader, L, args):
             target = target.cuda()
 
             prediction = model(img)
-            train_loss = loss(prediction, target)
+
+            if isinstance(loss, torch.nn.CrossEntropyLoss):
+                train_loss = loss(prediction, target)
+            else:
+                train_loss = loss(prediction, target.float())
 
             L.log("train/loss", train_loss, epoch)
 
@@ -63,8 +69,12 @@ def test(model, loss, test_loader):
         target = target.cuda()
         prediction = model(img)
 
-        acc = accuracy_score(np.argmax(prediction.cpu().numpy(), axis=1), target.cpu().numpy())
-        _loss = loss(prediction, target)
+        if isinstance(loss, torch.nn.CrossEntropyLoss):
+            _loss = loss(prediction, target)
+            acc = accuracy_score(np.argmax(prediction.cpu().numpy(), axis=1), target.cpu().numpy())
+        else:
+            _loss = loss(prediction, target.float())
+            acc = accuracy_score(np.round(prediction.cpu().numpy()), target.cpu().numpy())
 
         test_acc += (1 / (i + 1)) * (acc - test_acc)
         test_loss += (1 / (i + 1)) * (_loss - test_loss)
@@ -75,10 +85,7 @@ def get_data(root):
     dset = TemperatureDataset(root, overfit=bool(args.overfit))
     test_dset = TemperatureDataset(root, train=False, overfit=args.overfit)
 
-    #if not args.overfit:
     v_split = 0.2
-    #else:
-    #    v_split = 0.0
 
     dataset_size = len(dset)
     indices = list(range(dataset_size))
@@ -99,18 +106,26 @@ def get_data(root):
 if __name__ == "__main__":
     args = parse_args()
 
+    if args.model_type == "small":
+        from models.cnn_small import SmallCnn as MyModel
+    else:
+        from models.cnn import Cnn as MyModel
+
     torch.manual_seed(int(args.seed))
     np.random.seed(int(args.seed))
 
     DATA_ROOT = args.data_root
     train_loader, val_loader, test_loader = get_data(DATA_ROOT)
 
-    #model = MyModel()
-    model = ResNet18()
+    model = MyModel(args)
     model = model.cuda()
-    loss = torch.nn.CrossEntropyLoss()
 
-    work_dir = os.path.join("logs", "debug")
+    if args.classification:
+        loss = torch.nn.CrossEntropyLoss()
+    else:
+        loss = torch.nn.MSELoss()
+
+    work_dir = os.path.join(args.log_dir, args.exp_name, args.seed)
     print("Working Directory ", work_dir)
     utils.make_dir(work_dir)
     utils.write_info(args, os.path.join(work_dir, "info.log"))

@@ -2,9 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class MyModelSmall(nn.Module):
+class SmallCnn(nn.Module):
     def __init__(self, args=None):
-        super(MyModelSmall, self).__init__()
+        super(SmallCnn, self).__init__()
+        self.classification = args.classification
 
         self.encoder = nn.Sequential(
             nn.Conv2d(3, 64, 5, 1, 2),
@@ -32,11 +33,16 @@ class MyModelSmall(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(2)
         )
-        self.fc = nn.Linear(512 * 4 * 4, 101)
+        if self.classification:
+            self.fc = nn.Linear(512 * 4 * 4, 101)
+        else:
+            self.fc = nn.Linear(512 * 4 * 4, 1)
 
     def forward(self, x):
         x = self.encoder(x)
-        #import pdb; pdb.set_trace()
         x = x.view(x.shape[0], -1)
         x = self.fc(x)
-        return x
+        if self.classification:
+            return x
+        else:
+            return x.squeeze()
