@@ -10,6 +10,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from logger import Logger
 from sklearn.metrics import accuracy_score
 from arguments import parse_args
+from PIL import Image
 
 def evaluate(model, loss, val_loader, epoch, L):
     for img, target in val_loader:
@@ -62,8 +63,9 @@ def train(model, loss, train_loader, val_loader, L, args):
             L.dump(epoch)
             model.train()
 
-def test(model, loss, test_loader):
+def test(model, loss, test_loader, work_dir):
     test_acc, test_loss = 0.0, 0.0
+    save = True
     for i, (img, target) in enumerate(test_loader):
         img = img.cuda()
         target = target.cuda()
@@ -72,6 +74,28 @@ def test(model, loss, test_loader):
         if isinstance(loss, torch.nn.CrossEntropyLoss):
             _loss = loss(prediction, target)
             acc = accuracy_score(np.argmax(prediction.cpu().numpy(), axis=1), target.cpu().numpy())
+            if save:
+                correct_id = np.where(np.argmax(prediction.cpu().numpy(), axis=1) == target.cpu().numpy())[0]
+                incorrect_id = np.where(np.argmax(prediction.cpu().numpy(), axis=1) != target.cpu().numpy())[0]
+
+                try:
+                    correct_img = img[correct_id[0]].cpu().numpy().astype(np.uint8).transpose(1, 2, 0)*255
+                    im = Image.fromarray(correct_img)
+                    fname = str(np.argmax(prediction.cpu().numpy(), axis=1)[correct_id[0]]) + \
+                            "_" + str(target.cpu().numpy()[correct_id[0]])
+                    im.save(os.path.join(work_dir, "correct_samples", fname+".png"))
+                except:
+                    pass
+
+                try:
+                    incorrect_img = img[incorrect_id[0]].cpu().numpy().astype(np.uint8).transpose(1, 2, 0)*255
+                    im = Image.fromarray(incorrect_img)
+                    fname = str(np.argmax(prediction.cpu().numpy(), axis=1)[incorrect_id[0]]) + \
+                            "_" + str(target.cpu().numpy()[incorrect_id[0]])
+                    im.save(os.path.join(work_dir, "incorrect_samples", fname + ".png"))
+                except:
+                    pass
+
         else:
             _loss = loss(prediction, target.float())
             acc = accuracy_score(np.round(prediction.cpu().numpy()), target.cpu().numpy())
@@ -128,6 +152,8 @@ if __name__ == "__main__":
     work_dir = os.path.join(args.log_dir, args.exp_name, args.seed)
     print("Working Directory ", work_dir)
     utils.make_dir(work_dir)
+    utils.make_dir(os.path.join(work_dir, "correct_samples"))
+    utils.make_dir(os.path.join(work_dir, "incorrect_samples"))
     utils.write_info(args, os.path.join(work_dir, "info.log"))
     model_dir = utils.make_dir(os.path.join(work_dir, "model"))
     L = Logger(work_dir)
@@ -143,9 +169,14 @@ if __name__ == "__main__":
 
     model.eval()
     with torch.no_grad():
-        test_loss, test_acc = test(model, loss, test_loader)
+        test_loss, test_acc = test(model, loss, test_loader, work_dir)
 
     print("*"*25)
     print("Test Loss: ", test_loss)
-    print("Test Acc: ", test_acc)
+    print("Test Acc: ", test_acc*100)
     print("*" * 25)
+
+    f = open(os.path.join(work_dir, "test_results.txt"), 'w')
+    f.write("Test Loss: " + str(test_loss))
+    f.write("\nTest Acc: " + str(test_acc*100))
+    f.close()
