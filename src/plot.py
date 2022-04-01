@@ -27,7 +27,7 @@ def load_log(path):
         j = json.loads(d)
 
         epoch.append(j['epoch'])
-        value.append(j['acc'])
+        value.append(j['loss'])
 
     return epoch, value
 
@@ -46,13 +46,14 @@ def make_plot(ylabel, fname):
 def plot_training_curve(y_label, model, train_eval):
     for i, file in enumerate(train_eval):
         epochs, value = [], []
-        path = os.path.join(LOGS, model, file)
-        try:
-            seed_epochs, seed_value = load_log(path)
-            epochs.extend(seed_epochs)
-            value.extend(seed_value)
-        except:
-            print('Failed to load', path)
+        for seed in [0, 1, 2]:
+            path = os.path.join(LOGS, model, str(seed), file)
+            try:
+                seed_epochs, seed_value = load_log(path)
+                epochs.extend(seed_epochs)
+                value.extend(seed_value)
+            except:
+                print('Failed to load', path)
         if len(value) == 0:
             continue
         epochs = np.array(epochs)
@@ -68,16 +69,16 @@ def plot_training_curve(y_label, model, train_eval):
             label=file.split('.')[0],
             ci='sd'
         )
-    make_plot(y_label, model+"_acc")
+    make_plot(y_label, model+"_loss")
 
 
 if __name__ == '__main__':
 
-    model = "small_cnn_mse"
+    model = "large_cnn"
     save_path = os.path.join(save_path, model)
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    train_eval = ["eval.log"]
+    train_eval = ["train.log", "eval.log"]
 
     plot_training_curve("loss", model, train_eval)
