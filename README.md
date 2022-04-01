@@ -29,15 +29,15 @@ All results are averaged over 3 random seeds.
 
 Small CNN Training Curve
 
-![small_cnn_training_loss](\images\small_cnn/small_cnn_loss.png)
+![small_cnn_training_loss](./images/small_cnn/small_cnn_loss.png)
 
 Large CNN Training Curve
 
-![large_cnn_loss_curve](\images\large_cnn/large_cnn_loss.png)
+![large_cnn_loss_curve](./images/large_cnn/large_cnn_loss.png)
 
 Small CNN with MSE Training Curve
 
-![large_cnn_loss_curve](\images\small_cnn_mse/small_cnn_mse_loss.png)
+![large_cnn_loss_curve](./images/small_cnn_mse/small_cnn_mse_loss.png)
 
 Final Accuracy on Validation Set (Averaged over 3 seeds)
 
@@ -61,7 +61,33 @@ Final Accuracy on Test Set (Averaged over 3 seeds)
 
 Correct Results
 
-![Sample 1](\images\small_cnn/34_34.png) 34/34 ![Sample 2](\images\small_cnn/47_47.png) 47/47![Sample 3](\images\small_cnn/70_70.png) 70/70
+|       | ![Sample 1](./images/small_cnn/34_34.png) | ![Sample 2](./images/small_cnn/47_47.png) | ![Sample 3](./images/small_cnn/70_70.png) |
+|:-----:|:---------:|:---------:|:-------------:|
+| Prediction |   34   |   47  |     70    |
+| Ground Truth | 34 | 47 |   70   |
 
 Incorrect Results
 
+|       | ![Sample 1](./images/small_cnn/22_20.png) | ![Sample 2](./images/small_cnn/65_64.png) | ![Sample 3](./images/small_cnn/76_77.png) |
+|:-----:|:---------:|:---------:|:-------------:|
+| Prediction |   22   |   65  |     76    |
+| Ground Truth | 20 | 64 |   77   |
+
+**Large CNN**
+
+Correct Results
+
+|       | ![Sample 1](./images/large_cnn/26_26.png) | ![Sample 2](./images/large_cnn/45_45.png) | ![Sample 3](./images/large_cnn/50_50.png) |
+|:-----:|:---------:|:---------:|:-------------:|
+| Prediction |   26   |   45  |     50    |
+| Ground Truth | 26 | 45 |   50   |
+
+Incorrect Results
+
+|       | ![Sample 1](./images/large_cnn/51_36.png) | ![Sample 2](./images/large_cnn/56_55.png) | ![Sample 3](./images/large_cnn/85_84.png) |
+|:-----:|:---------:|:---------:|:-------------:|
+| Prediction |   51   |   56  |     85    |
+| Ground Truth | 36 | 55 |   84   |
+
+### Discussion
+From the results we notice that when the model makes an error, it is not much far from the ground truth. In fact, the difference is so small it is not easy to distinguish by human inspection. The Smaller model performs better. This could be due to the smaller dataset size which can cause the larger model to overfit. Furthermore, the models were only trained for 10 epochs. This may not have been enough to fully converge the larger model. A future next step is to try data augmentation. Some augmentations that could be useful are vertical flipping and grayscaling the image. Another extension can be to use an off-the shelf digit detector to detect the minimum and maximum readings of the thermometers. This can be used as input to the model and will help provide more information.
