@@ -21,18 +21,47 @@ For the **Small_CNN** model the MSE Loss is also tried. In this case the problem
 
 ### Metric Used
 The accuracy is used as the metric for the problem. When doing classification, taking the argmax of the models predictions gives the predicted class.
-Durring regression, the models prediction is calculated by rounding the model output to the nearest integer.
+During regression, the models prediction is calculated by rounding the model output to the nearest integer.
 
 ### Results
-Results on Validation Set (Averaged over 3 seeds)
+
+All results are averaged over 3 random seeds.
+
+Small CNN Training Curve
+
+![small_cnn_training_loss](\images\small_cnn/small_cnn_loss.png)
+
+Large CNN Training Curve
+
+![large_cnn_loss_curve](\images\large_cnn/large_cnn_loss.png)
+
+Small CNN with MSE Training Curve
+
+![large_cnn_loss_curve](\images\small_cnn_mse/small_cnn_mse_loss.png)
+
+Final Accuracy on Validation Set (Averaged over 3 seeds)
+
 |       | Small CNN | Large CNN | Small CNN MSE |
 |:-----:|:---------:|:---------:|:-------------:|
 |  Mean |   91.99   |   30.10   |     44.68     |
 | Error |  +/- 0.32 | +/- 12.71 |   +/- 30.63   |
 
 
-Results on Test Set (Averaged over 3 seeds)
+Final Accuracy on Test Set (Averaged over 3 seeds)
 |       | Small CNN | Large CNN | Small CNN MSE |
 |:-----:|:---------:|:---------:|:-------------:|
 |  Mean |   91.86   |   30.63   |     43.78     |
 | Error |  +/- 0.93 | +/- 13.68 |   +/- 30.08   |
+
+
+
+### Visualizations of Results
+
+**Small CNN**
+
+Correct Results
+
+![Sample 1](\images\small_cnn/34_34.png) 34/34 ![Sample 2](\images\small_cnn/47_47.png) 47/47![Sample 3](\images\small_cnn/70_70.png) 70/70
+
+Incorrect Results
+
